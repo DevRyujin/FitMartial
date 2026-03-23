@@ -24,17 +24,9 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
 
-Route::get('/home', function () {
-
-    $posts = Cache::remember('home_posts_page_' . request('page', 1), 60, function () {
-        return Post::with(['user', 'images'])
-            ->latest()
-            ->paginate(10);
-    });
-
-    return view('home', compact('posts'));
-
-})->middleware(['auth'])->name('home');
+Route::get('/home', [PostController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::put('/training/{training}', [TrainingEntryController::class, 'update'])->name('training.update');

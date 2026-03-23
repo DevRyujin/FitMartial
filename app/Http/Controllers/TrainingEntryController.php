@@ -25,11 +25,13 @@ class TrainingEntryController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'training_date' => 'required|date',
+            //'training_date' => 'required|date',
             'activity' => 'required|string|max:255',
             'notes' => 'nullable|string',
             'color' => 'nullable|string|max:255',
         ]);
+
+        $validated['training_date'] = now()->toDateString();
 
         $request->user()->trainingEntries()->create($validated);
 

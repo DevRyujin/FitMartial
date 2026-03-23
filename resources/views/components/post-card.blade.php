@@ -82,6 +82,7 @@
                     src="{{ asset('storage/' . $images->first()) }}"
                     alt="Post image"
                     class="rounded-xl w-full object-cover max-h-96 border border-gray-800"
+                    onerror="this.src='/images/fallback.png'"
                 >
             </div>
         @elseif($images->count() > 1)
@@ -91,6 +92,7 @@
                         src="{{ asset('storage/' . $path) }}"
                         alt="Post image"
                         class="rounded-xl w-full h-40 object-cover border border-gray-800"
+                        onerror="this.src='/images/fallback.png'"
                     >
                 @endforeach
             </div>

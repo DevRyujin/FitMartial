@@ -20,8 +20,6 @@
                     this.imageFiles.push(file);
                     this.imagePreviews.push(URL.createObjectURL(file));
                 });
-
-                this.syncFiles();
             },
 
             removeImage(index) {
@@ -31,16 +29,6 @@
 
                 this.imageFiles.splice(index, 1);
                 this.imagePreviews.splice(index, 1);
-
-                this.syncFiles();
-            },
-
-            syncFiles() {
-                const dt = new DataTransfer();
-
-                this.imageFiles.forEach(file => dt.items.add(file));
-
-                this.$refs.fileInput.files = dt.files;
             }
         }"
     >
@@ -98,7 +86,6 @@
                         multiple
                         accept="image/*"
                         class="hidden"
-                        x-ref="fileInput"
                         @change="pickImages"
                     >
                 </label>
