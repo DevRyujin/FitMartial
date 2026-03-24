@@ -29,6 +29,7 @@ Route::get('/home', [PostController::class, 'index'])
     ->name('home');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/training-entries', [TrainingEntryController::class, 'fetch'])->name('training.fetch');
     Route::put('/training/{training}', [TrainingEntryController::class, 'update'])->name('training.update');
     Route::post('/training', [TrainingEntryController::class, 'store'])->name('training.store');
     Route::delete('/training/{training}', [TrainingEntryController::class, 'destroy'])->name('training.destroy');

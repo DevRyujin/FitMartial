@@ -17,27 +17,67 @@ class TrainingEntryController extends Controller
         $trainingEntries = $request->user()
             ->trainingEntries()
             ->latest()
-            ->take(10)
-            ->get();
+            ->get()
+            ->map(function ($entry) {
+                return [
+                    'id' => $entry->id,
+                    'activity' => $entry->activity,
+                    'notes' => $entry->notes,
+                    'training_date' => $entry->training_date->format('Y-m-d'),
+                    'formatted_date' => $entry->training_date->format('M d, Y'),
+                    'is_today' => $entry->training_date->isToday(),
+                ];
+            });
 
         return view('tracker', compact('trainingEntries'));
     }
+
+    public function fetch(Request $request)
+    {
+        $trainingEntries = $request->user()
+            ->trainingEntries()
+            ->latest()
+            ->get()
+            ->map(function ($entry) {
+                return [
+                    'id' => $entry->id,
+                    'activity' => $entry->activity,
+                    'notes' => $entry->notes,
+                    'training_date' => $entry->training_date->format('Y-m-d'),
+                    'formatted_date' => $entry->training_date->format('M d, Y'),
+                    'is_today' => $entry->training_date->isToday(),
+                ];
+            });
+
+        return response()->json([
+            'entries' => $trainingEntries,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            //'training_date' => 'required|date',
+            'training_date' => 'required|date',
             'activity' => 'required|string|max:255',
             'notes' => 'nullable|string',
             'color' => 'nullable|string|max:255',
         ]);
 
-        $validated['training_date'] = now()->toDateString();
+        //$validated['training_date'] = now()->toDateString();
 
-        $request->user()->trainingEntries()->create($validated);
+        //$request->user()->trainingEntries()->create($validated);
 
+        $entry = $request->user()->trainingEntries()->create($validated);
+        
         return response()->json([
             'success' => true,
-            'message' => 'Training entry saved successfully.',
+            'entry' => [
+                'id' => $entry->id,
+                'activity' => $entry->activity,
+                'notes' => $entry->notes,
+                'training_date' => $entry->training_date->format('Y-m-d'),
+                'formatted_date' => $entry->training_date->format('M d, Y'),
+            ]
         ]);
     }
 

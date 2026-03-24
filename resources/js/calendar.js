@@ -3,11 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const trainingData = {};
-// {
-//   "2026-02-01": [
-//      { activity: "Muay Thai", notes: "...", color: "bg-red-600" }
-//   ]
-// }
 
 function initCalendar(calendarEl) {
     const grid = calendarEl.querySelector("[data-calendar-grid]");
@@ -44,13 +39,21 @@ function initCalendar(calendarEl) {
 
     let activeDateKey = null;
 
+    // 🔥 FIXED DATE (NO UTC BUG)
+    function formatLocalDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+
     function openTrainingOverlay(year, month, day) {
         const date = new Date(year, month, day);
-        activeDateKey = date.toISOString().split("T")[0];
+
+        // ✅ FIXED
+        activeDateKey = formatLocalDate(date);
 
         overlay.classList.remove("hidden");
-
-        // Reset form
         form.reset();
     }
 
@@ -88,31 +91,24 @@ function initCalendar(calendarEl) {
 
             btn.textContent = day;
 
-            const dateKey = new Date(year, month, day)
-                .toISOString()
-                .split("T")[0];
+            const dateKey = formatLocalDate(new Date(year, month, day));
 
-            // Training indicator — STACKED MINI BARS
+            // indicators
             if (trainingData[dateKey]?.length) {
                 const barWrap = document.createElement("div");
 
                 barWrap.className =
-                    "absolute bottom-1 left-1 right-1 " +
-                    "grid grid-cols-5 gap-1 " +
-                    "max-h-6 overflow-hidden";
+                    "absolute bottom-1 left-1 right-1 grid grid-cols-5 gap-1 max-h-6 overflow-hidden";
 
                 trainingData[dateKey].forEach((entry) => {
                     const bar = document.createElement("span");
-
                     bar.className = `w-full h-2 rounded ${entry.color}`;
-
                     barWrap.appendChild(bar);
                 });
 
                 btn.appendChild(barWrap);
             }
 
-            // Today highlight (optional but recommended)
             if (isToday(year, month, day)) {
                 btn.classList.add("ring-2", "ring-blue-400");
             }
@@ -180,7 +176,6 @@ function initCalendar(calendarEl) {
 
     closeBtn.addEventListener("click", closeTrainingOverlay);
 
-    // click outside card closes
     overlay.addEventListener("click", (e) => {
         if (e.target === overlay) {
             closeTrainingOverlay();
@@ -192,7 +187,7 @@ function initCalendar(calendarEl) {
         return entryColors[i];
     }
 
-    // Capture training submission (core logic)
+    // 🔥 SUBMIT (FIXED)
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
@@ -204,37 +199,31 @@ function initCalendar(calendarEl) {
         formData.append("color", getRandomColor());
 
         try {
-            const res = await fetch("/training-entries", {
+            const res = await fetch("/training", {
                 method: "POST",
                 body: formData,
-
                 headers: {
                     "X-CSRF-TOKEN": document.querySelector(
                         'meta[name="csrf-token"]',
                     ).content,
                 },
-
-                credentials: "same-origin", // REQUIRED for auth
+                credentials: "same-origin",
             });
 
             const data = await res.json();
-
             if (!data.success) throw new Error();
 
-            // ---- UI update (fast feedback) ----
-
-            const entry = {
-                activity: formData.get("activity"),
-                notes: formData.get("notes"),
-                color: formData.get("color"),
-                createdAt: Date.now(),
-            };
-
+            // ✅ USE BACKEND ENTRY (NO DUPLICATES)
             trainingData[activeDateKey] ??= [];
-            trainingData[activeDateKey].unshift(entry);
+            trainingData[activeDateKey].unshift(data.entry);
 
             closeTrainingOverlay();
             renderCalendar();
+
+            // optional live update hook
+            if (window.updateTrainingEntries) {
+                window.updateTrainingEntries(data.entry);
+            }
         } catch (err) {
             alert("Failed to save training entry.");
             console.error(err);
