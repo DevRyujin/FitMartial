@@ -15,7 +15,12 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::with(['user', 'images'])->latest()->paginate(10);
+        $posts = Post::with(['user', 'images'])
+        ->withCount('likes')
+        ->with(['likes' => function ($q) {
+            $q->where('user_id', Auth::id());
+        }])
+        ->latest()->paginate(10);
         return view("home", compact('posts'));
     }
 

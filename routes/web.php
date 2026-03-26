@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\TrainingEntryController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Cache;
 
 use App\Models\Post;
@@ -56,5 +58,11 @@ Route::get('/auth-test', function () {
 Route::get('/posts/{post}/edit', [PostController::class, 'edit'])->name('posts.edit');
 
 Route::post('/training-entries', [TrainingEntryController::class,'store'])->middleware('auth');
+
+Route::post('/posts/{post}/like', [LikeController::class, 'toggle'])->middleware('auth')->name('posts.like');
+
+Route::post('/posts/{post}/comments', [CommentController::class, 'store'])
+    ->middleware('auth')
+    ->name('comments.store');
 
 require __DIR__.'/auth.php';

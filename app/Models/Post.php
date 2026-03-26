@@ -23,4 +23,14 @@ class Post extends Model
     {
         return $this->hasMany(PostImage::class)->orderBy('sort_order');
     }
+
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->latest();
+    }
 }

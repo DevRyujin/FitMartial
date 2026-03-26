@@ -34,7 +34,7 @@
     <div class="min-h-screen flex">
 
         {{-- Sidebar always shown --}}
-        <aside class="w-64 shrink-0">
+        <aside class="w-20 shrink-0">
             <x-sidebar />
         </aside>
 
