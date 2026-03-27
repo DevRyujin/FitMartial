@@ -101,21 +101,19 @@
         {{-- Actions --}}
         <div class="mt-4 grid grid-cols-3 text-gray-400 text-sm poppins-regular">
 
-            <div 
-                class="relative"
+            <!-- Like Button -->
+            <div class="flex items-center justify-center relative"
                 x-data="{
                     liked: @json($post->likes->isNotEmpty()),
                     count: {{ $post->likes_count }},
                     animating: false,
                     toggle() {
-                        // instant UI update
                         this.liked = !this.liked;
                         this.count = Math.max(0, this.liked ? this.count + 1 : this.count - 1);
 
                         this.animating = true;
                         setTimeout(() => this.animating = false, 300);
 
-                        // send request in background
                         fetch('{{ route('posts.like', $post) }}', {
                             method: 'POST',
                             credentials: 'same-origin',
@@ -131,60 +129,45 @@
                     @click="toggle"
                     class="relative flex items-center justify-center gap-2 px-2 py-1 transition active:scale-95"
                 >
-
-                    <!-- ICON CONTAINER -->
                     <div class="relative w-7 h-7">
 
-                        <!-- OUTLINE HEART -->
                         <x-heroicon-o-heart
                             x-show="!liked"
-                            x-transition:enter="transition transform duration-200"
-                            x-transition:enter-start="scale-75 opacity-0"
-                            x-transition:enter-end="scale-100 opacity-100"
                             class="absolute h-7 w-7 text-gray-400"
                         />
 
-                        <!-- FILLED HEART -->
                         <x-heroicon-s-heart
                             x-show="liked"
-                            x-transition:enter="transition transform duration-200"
-                            x-transition:enter-start="scale-125 opacity-0"
-                            x-transition:enter-end="scale-100 opacity-100"
                             class="absolute h-7 w-7 text-red-500"
                         />
-
                     </div>
 
-                    <!-- COUNT -->
                     <span x-text="count" class="text-sm"></span>
 
-                    <!-- FLOATING HEART ANIMATION -->
                     <span 
                         x-show="animating && liked"
-                        x-transition:enter="transform transition ease-out duration-300"
-                        x-transition:enter-start="scale-50 opacity-0"
-                        x-transition:enter-end="scale-125 opacity-100"
-                        x-transition:leave="transition ease-in duration-200"
-                        x-transition:leave-start="opacity-100"
-                        x-transition:leave-end="opacity-0"
                         class="absolute"
                         style="top: -12px; left: 50%; transform: translateX(-50%);"
                     >
                         <x-heroicon-s-heart class="h-6 w-6 text-red-500"/>
                     </span>
-
+                </button>
+            </div>
+            
+            <!-- Comment Button -->
+            <div class="flex items-center justify-center">
+                <button class="flex items-center justify-center gap-2 hover:text-white transition">
+                    <x-solar-chat-line-bold class="h-7 w-7"/>
                 </button>
             </div>
 
-            <button class="flex items-center justify-center gap-2 hover:text-white transition text-md">
-                <x-solar-chat-line-bold class="h-7 w-7"/>
-                Comment
-            </button>
+            <!-- Share Button -->
+            <div class="flex items-center justify-center">
+                <button class="flex items-center justify-center gap-2 hover:text-white transition">
+                    <x-solar-share-line-duotone class="h-7 w-7"/>
+                </button>
+            </div>
 
-            <button class="flex items-center justify-center gap-2 hover:text-white transition text-md">
-                <x-solar-share-line-duotone class="h-7 w-7"/>
-                Share
-            </button>
         </div>
     </div>
 </div>
